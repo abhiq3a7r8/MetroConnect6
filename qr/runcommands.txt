@@ -1,0 +1,4 @@
+pip install --user streamlit
+export PATH=$HOME/.local/bin:$PATH
+streamlit run qr_validator.py
+

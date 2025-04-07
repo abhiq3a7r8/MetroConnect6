@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mumbai Metro Map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    html, body { height: 100%; margin: 0; }
+    #map { height: 100%; }
+    .leaflet-container { font-size: 16px; }
+    .leaflet-popup-content { font-size: 18px; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([19.12, 72.85], 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: ''
+    }).addTo(map);
+
+    const metroStations = [
+      { name: "Versova", coords: [19.1340, 72.8258] },
+      { name: "DN Nagar", coords: [19.1314, 72.8315] },
+      { name: "Azad Nagar", coords: [19.1298, 72.8368] },
+      { name: "Andheri", coords: [19.1196, 72.8464] },
+      { name: "Western Express Highway", coords: [19.1096, 72.8567] },
+      { name: "Chakala", coords: [19.1042, 72.8647] },
+      { name: "Marol Naka", coords: [19.1025, 72.8691] },
+      { name: "Saki Naka", coords: [19.0976, 72.8759] },
+      { name: "Asalpha", coords: [19.0892, 72.8828] },
+      { name: "Ghatkopar", coords: [19.0817, 72.9080] }
+    ];
+
+    const latlngs = [];
+
+    const smallMetroIcon = L.icon({
+      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+      iconSize: [12, 20],      
+      iconAnchor: [6, 20],      
+      popupAnchor: [0, -18]
+    });
+
+    metroStations.forEach(station => {
+      L.marker(station.coords, { icon: smallMetroIcon })
+        .bindPopup(`<b>${station.name}</b>`)
+        .addTo(map);
+
+      L.circleMarker(station.coords, {
+        radius: 6,
+        color: '#ff0000',
+        fillColor: '#ff0000',
+        fillOpacity: 1
+      }).addTo(map);
+
+      latlngs.push(station.coords);
+    });
+
+    const metroLine = L.polyline(latlngs, {
+      color: '#0077ff',
+      weight: 5,
+      opacity: 0.8
+    }).addTo(map);
+
+    map.fitBounds(metroLine.getBounds());
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    { "type": "Feature", "properties": { "name": "Versova" }, "geometry": { "type": "Point", "coordinates": [72.8245, 19.1340] }},
+    { "type": "Feature", "properties": { "name": "D N Nagar" }, "geometry": { "type": "Point", "coordinates": [72.8343, 19.1321] }},
+    { "type": "Feature", "properties": { "name": "Azad Nagar" }, "geometry": { "type": "Point", "coordinates": [72.8422, 19.1315] }},
+    { "type": "Feature", "properties": { "name": "Andheri" }, "geometry": { "type": "Point", "coordinates": [72.8467, 19.1196] }},
+    { "type": "Feature", "properties": { "name": "WEH" }, "geometry": { "type": "Point", "coordinates": [72.8553, 19.1144] }},
+    { "type": "Feature", "properties": { "name": "Chakala" }, "geometry": { "type": "Point", "coordinates": [72.8625, 19.1110] }},
+    { "type": "Feature", "properties": { "name": "Marol Naka" }, "geometry": { "type": "Point", "coordinates": [72.8696, 19.1066] }},
+    { "type": "Feature", "properties": { "name": "Saki Naka" }, "geometry": { "type": "Point", "coordinates": [72.8774, 19.1022] }},
+    { "type": "Feature", "properties": { "name": "Asalpha" }, "geometry": { "type": "Point", "coordinates": [72.8846, 19.0978] }},
+    { "type": "Feature", "properties": { "name": "Jagruti Nagar" }, "geometry": { "type": "Point", "coordinates": [72.8914, 19.0943] }},
+    { "type": "Feature", "properties": { "name": "Ghatkopar" }, "geometry": { "type": "Point", "coordinates": [72.9008, 19.0853] }}
+  ]
+}

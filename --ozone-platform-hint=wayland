@@ -1,0 +1,61 @@
+import cv2
+import numpy as np
+import streamlit as st
+from pyzbar.pyzbar import decode
+
+st.title("🎫 Metro Ticket QR Validator")
+
+# Predefined valid ticket ID (replace with DB check if needed)
+VALID__ID = "MT20250402"
+
+# OpenCV Webcam Stream
+FRAME_WINDOW = st.image([])  # Placeholder for video feed
+
+# Open webcam
+cap = cv2.VideoCapture(0)
+
+def scan_qr_code():
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            st.error("Error accessing webcam")
+            break
+        
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Convert to RGB
+        decoded_objects = decode(frame_rgb)
+
+        validation_result = "🔍 Scanning..."
+
+        for obj in decoded_objects:
+            qr_data = obj.data.decode("utf-8")  # Decode QR data
+            
+            if VALID_TICKET_ID in qr_data:
+                validation_result = "✅ Valid Ticket"
+                color = (0, 255, 0)
+            else:
+                validation_result = "❌ Invalid Ticket"
+                color = (255, 0, 0)
+
+            # Draw bounding box around QR code
+            points = obj.polygon
+            if len(points) == 4:
+                pts = np.array(points, dtype=np.int32)
+                cv2.polylines(frame, [pts], True, color, 2)
+
+            # Display validation message
+            cv2.putText(frame, validation_result, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+
+        FRAME_WINDOW.image(frame, channels="BGR")
+
+        if validation_result != "🔍 Scanning...":
+            st.success(validation_result)
+            break  # Stop scanning after detection
+
+    cap.release()
+
+if st.button("Start Scanning"):
+    scan_qr_code()
+
+if st.button("Exit"):
+    cap.release()
+    st.stop()

@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "MetroConnect6",
+    "slug": "MetroConnect6",
+    "version": "1.0.0",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": false,
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-barcode-scanner"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "scheme": "myapp",
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "d92ffffb-9f98-4a8d-aa99-6d9e7594e79a"
+      }
+    },
+    "android": {
+      "package": "com.abhi_q3a7r8.MetroConnect6",
+      "permissions": [
+        "CAMERA",
+        "android.permission.CAMERA"
+      ]
+    },
+    "ios": {
+      "bundleIdentifier": "com.abhi-q3a7r8.MetroConnect6",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app needs access to the camera to scan QR codes and barcodes."
+      }
+    },
+    "owner": "abhi_q3a7r8"
+  }
+}
