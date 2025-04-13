@@ -1,4 +1,4 @@
-import { TextInput, View } from "react-native";
+import { TextInput, View, TouchableOpacity, Text } from "react-native";
 import { useRef, useState } from "react";
 
 export function Otpinput({ onChangeOtp }) {
@@ -23,18 +23,30 @@ export function Otpinput({ onChangeOtp }) {
         }
     };
 
+    const handleClear = () => {
+        setOtp(Array(6).fill(""));
+        inputRefs[0].current.focus();
+    };
+
     return (
-        <View className="flex flex-row ">
-            {[...Array(6)].map((_, index) => (
-                <TextInput
-                    key={index}
-                    ref={inputRefs[index]}
-                    className="text-center m-1 font-poppins text-3xl bg-zinc-100 border-2 border-zinc-300 h-14 rounded-lg w-9"
-                    maxLength={1}
-                    keyboardType="numeric"
-                    onChangeText={(text) => handleTextChange(text, index)}
-                />
-            ))}
+        <View className="items-center">
+            <View className="flex flex-row">
+                {[...Array(6)].map((_, index) => (
+                    <TextInput
+                        key={index}
+                        ref={inputRefs[index]}
+                        className="text-center m-1 font-poppins text-3xl bg-zinc-100 border-2 border-zinc-300 h-14 rounded-lg w-9"
+                        maxLength={1}
+                        keyboardType="numeric"
+                        value={otp[index]}
+                        onChangeText={(text) => handleTextChange(text, index)}
+                    />
+                ))}
+            </View>
+
+            <TouchableOpacity onPress={handleClear} className="mt-3">
+                <Text className="text-blue-700 font-poppins underline">Clear</Text>
+            </TouchableOpacity>
         </View>
     );
 }

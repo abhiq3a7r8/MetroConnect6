@@ -2,35 +2,37 @@ import { View } from "react-native";
 import Mbutton from "@/components/MButton";
 import Otpinput from "@/components/Otpinput";
 import { useState } from "react";
-import { router } from "expo-router";
+import { router , useLocalSearchParams } from "expo-router";
 
 export function Enterotp() {
     const [otpValue, setOtpValue] = useState("");
-
+    const { phone: rawPhone } = useLocalSearchParams();
+    console.log(rawPhone)
     const handleVerify = async (otp) => {
-        console.log(otp)
+        
+    
         try {
-            const response = await fetch("http://192.168.133.42:3001/verify-otp", {
-                
+            const response = await fetch("https://r80w3crtk8.execute-api.ap-south-1.amazonaws.com/default/sendOtp", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ otp }),
+                body: JSON.stringify({ action: "verify", phone: rawPhone, code: otp }), 
             });
     
             const data = await response.json();
     
-            if (data.success) {
+            if (response.ok) {
                 console.log("OTP Verified Successfully:", data.message);
-                router.replace("/dashboard")
+                router.replace("/dashboard");
             } else {
-                console.log("OTP Verification Failed:", data.message);
+                console.log("OTP Verification Failed:", data.error);
             }
         } catch (error) {
             console.error("Error verifying OTP:", error);
         }
     };
+    
 
     const handleOtpChange = (otp) => {
         setOtpValue(otp);

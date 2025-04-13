@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import axios from "axios";
 
-const MetroStationDropdown = ({ zIndex, placeholder, onSelect }) => {
+const MetroStationDropdown = ({ placeholder, onSelect }) => {
   const [stations, setStations] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedStation, setSelectedStation] = useState(null);
@@ -11,40 +11,65 @@ const MetroStationDropdown = ({ zIndex, placeholder, onSelect }) => {
   useEffect(() => {
     const fetchStations = async () => {
       try {
-        const response = await axios.get("http://192.168.133.42:3000/api/stations");
-        const stationList = response.data.map((station) => ({
-          label: station.station_name,
-          value: station.station_name,
-        }));
-        setStations(stationList);
+        const response = await axios.get("https://qgv0fszlng.execute-api.ap-south-1.amazonaws.com/default/GetStationsFromDB");
+        
+        if (response.data && Array.isArray(response.data)) {
+          const stationList = response.data.map((station, index) => ({
+            label: station.name,
+            value: station.name || '',
+            name: station.name || '',
+            line: station.line_name || '',
+            key: `station-${index}`,
+          }));
+          
+          setStations(stationList);
+        } else {
+          console.error("Invalid response data format:", response.data);
+          setStations([]);
+        }
       } catch (error) {
         console.error("Error fetching stations:", error);
+        setStations([]);
       }
     };
-
     fetchStations();
   }, []);
 
-  const handleSelect = (value) => {
+  const handleSelect = (value: any) => {
     setSelectedStation(value);
     if (onSelect) {
-      onSelect(value); // Notify parent component
+      onSelect(value);
     }
   };
 
   return (
-    <View style={[styles.container, { zIndex }]}>
+    <View style={[styles.container, open ? { marginBottom: 200 } : {}]}>
       <DropDownPicker
         open={open}
         value={selectedStation}
         items={stations}
         setOpen={setOpen}
-        setValue={handleSelect} // Call handleSelect on selection
+        setValue={setSelectedStation}
         setItems={setStations}
-        placeholder={placeholder}
-        style={styles.dropdown}
-        dropDownContainerStyle={styles.dropDownContainer}
-        textStyle={styles.text}
+        onChangeValue={handleSelect}
+        placeholder={placeholder || "Select a station"}
+        style={styles.dropdownStyle}
+        dropDownContainerStyle={styles.dropdownContainerStyle}
+        textStyle={styles.textStyle}
+        listItemContainerStyle={styles.listItem}
+        renderListItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.itemRow}
+            onPress={() => {
+              setSelectedStation(item.value);
+              handleSelect(item.value);
+              setOpen(false); 
+            }}
+          >
+            <Text className="font-poppinsMedium w-40">{item.name}</Text>
+            <Text className="font-poppins bg-blue-200 p-[1] px-1">{item.line}</Text>
+          </TouchableOpacity>
+        )}
       />
     </View>
   );
@@ -53,23 +78,46 @@ const MetroStationDropdown = ({ zIndex, placeholder, onSelect }) => {
 const styles = StyleSheet.create({
   container: {
     width: "90%",
-    elevation: 5,
+    position: "relative",
+    paddingBottom: 10,
   },
-  dropdown: {
+  dropdownStyle: {
     backgroundColor: "#F5F5F5",
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#D1D5DB",
   },
-  dropDownContainer: {
+  dropdownContainerStyle: {
     backgroundColor: "#FFFFFF",
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: "#D1D5DB",
-    borderRadius: 8,
   },
-  text: {
+  textStyle: {
     fontSize: 16,
     color: "#374151",
+  },
+  listItem: {
+    padding: 8,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  itemRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 8,
+  },
+  stationText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1F2937", // dark gray
+    fontFamily: "Poppins-Medium",
+  },
+  lineText: {
+    fontSize: 14,
+    color: "#2563EB", // blue-600
+    fontFamily: "Poppins-Regular",
   },
 });
 

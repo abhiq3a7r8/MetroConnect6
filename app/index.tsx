@@ -15,13 +15,15 @@ export default function Index() {
   };
 
   return (
-    <View className="flex-1 items-center justify-center bg-gray-100">
+    <View className="flex-1 items-center justify-evenly bg-gray-100">
+      <View className="items-center">
       <TouchableOpacity onPress={handleTap}>
         <Image source={require("@/assets/login.png")} className="mb-4" />
       </TouchableOpacity>
-      <Text className="color-black text-4xl mb-16 font-poppinsMedium">
+      <Text className="color-black text-4xl font-poppinsMedium">
         Metro Connect 5
       </Text>
+      </View>
       <LoginBox />
     </View>
   );

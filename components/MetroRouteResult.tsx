@@ -6,13 +6,13 @@ import SingleReturn from "./SingleReturn";
 import FixedStopsSlider from "./FixedStopsSlider";
 import Mbutton from "./MButton";
 
-const MetroRouteResult = ({ startStation, endStation }) => {
-  const router = useRouter(); // Initialize router
+const MetroRouteResult = ({ startStation, endStation }: any) => {
+  const router = useRouter(); 
 
   const [tripType, setTripType] = useState(); 
   const [numTickets, setNumTickets] = useState(); 
 
-  if (!startStation || !endStation) return null; // Don't show if empty
+  if (!startStation || !endStation) return null; 
 
   const handleBookTicket = () => {
     router.push({
@@ -35,7 +35,7 @@ const MetroRouteResult = ({ startStation, endStation }) => {
           <Text className="text-xl font-poppinsMedium">{startStation}</Text>
         </View>
         <View className="self-center">
-          <ArrowLeftRight />
+          <ArrowLeftRight color={"black"}/>
         </View>
         <View className="items-center">
           <Text className="text-base">To</Text>

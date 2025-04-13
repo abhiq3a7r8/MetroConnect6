@@ -9,33 +9,18 @@ import ShakePopup from "@/components/ShakePopup";
 export default function Dashboard() {
   const [route, setRoute] = useState({ start: "", end: "" });
 
-  // Function to update state when route is found
-  const handleRouteFound = (startStation, endStation) => {
+  const handleRouteFound = (startStation: any, endStation: any) => {
     setRoute({ start: startStation, end: endStation });
   };
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <HomeHeader />
-        
-        
         <HomeWidget onRouteFound={handleRouteFound} />
-
-        
         {route.start && route.end && <MetroRouteResult startStation={route.start} endStation={route.end} />}
-
-        
-        <View className="flex-row justify-between mt-8 w-[90%]">
-          <View className="bg-white h-36 w-[47%] rounded-[10] justify-evenly items-center p-4"></View>
-          <View className="bg-white h-36 w-[47%] rounded-[10] justify-evenly items-center p-4"></View>
-        </View>
-        <View className="flex-row justify-between mt-4 w-[90%]">
-          <View className="bg-white h-36 w-[47%] rounded-[10] justify-evenly items-center p-4"></View>
-          <View className="bg-white h-36 w-[47%] rounded-[10] justify-evenly items-center p-4"></View>
-        </View>
       </ScrollView>
-      <ShakePopup />
+      {/* <ShakePopup /> */}
       <Navbar />
     </View>
   );

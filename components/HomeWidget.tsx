@@ -3,7 +3,7 @@ import { View, Text } from "react-native";
 import MButton from "./MButton";
 import MetroStationDropdown from "./MetroStationDropdown";
 
-export function HomeWidget({ onRouteFound }) {
+export function HomeWidget({ onRouteFound }: any) {
   const [startStation, setStartStation] = useState("");
   const [endStation, setEndStation] = useState("");
   const [error, setError] = useState("");
