@@ -13,7 +13,7 @@ export function FixedStopsSlider({ onStopChange }) {
   };
 
   return (
-    <View className="w-full items-center mt-6">
+    <View className="w-full items-center mt-3">
       {/* Slider Line */}
       
 

@@ -6,6 +6,8 @@ import MetroStationDropdown from "./MetroStationDropdown";
 export function HomeWidget({ onRouteFound }: any) {
   const [startStation, setStartStation] = useState("");
   const [endStation, setEndStation] = useState("");
+  const [startLine, setStartLine] = useState("");
+  const [endLine, setEndLine] = useState("");
   const [error, setError] = useState("");
 
   const handleFindRoute = () => {
@@ -15,20 +17,33 @@ export function HomeWidget({ onRouteFound }: any) {
       setError("Start and End station cannot be the same");
     } else {
       setError(""); 
-      onRouteFound(startStation, endStation);
+      onRouteFound(startStation, endStation, startLine, endLine);
     }
+    
   };
 
   return (
-    <View className="bg-white h-[400] w-[90%] rounded-[10] justify-evenly items-center p-4">
-      <View className="self-start ml-5">
+    <View className="bg-white w-[90%] rounded-[10] justify-evenly items-center p-2 gap-2">
+      <View className="self-start ml-5 mt-4">
         <Text className="font-poppinsMedium text-4xl">Find Your</Text>
         <Text className="font-poppinsMedium text-4xl">Metro Route</Text>
       </View>
 
       {/* Dropdowns */}
-      <MetroStationDropdown zIndex={400} placeholder="Starting Station" onSelect={setStartStation} />
-      <MetroStationDropdown zIndex={200} placeholder="Ending Station" onSelect={setEndStation} />
+      <MetroStationDropdown
+        placeholder="Starting Station"
+        onSelect={(station, line) => {
+          setStartStation(station)
+          setStartLine(line)
+        }}
+      />
+      <MetroStationDropdown
+        placeholder="Ending Station"
+        onSelect={(station, line) => {
+          setEndStation(station)
+          setEndLine(line)
+        }}
+      />
 
       {/* Error Message */}
       {error !== "" && (

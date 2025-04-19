@@ -3,25 +3,27 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import axios from "axios";
 
-const MetroStationDropdown = ({ placeholder, onSelect }) => {
+const MetroStationDropdown = ({ placeholder, onSelect }: any) => {
   const [stations, setStations] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedStation, setSelectedStation] = useState(null);
+  const [selectedLine, setSelectedLine] = useState(null);
 
   useEffect(() => {
     const fetchStations = async () => {
       try {
-        const response = await axios.get("https://qgv0fszlng.execute-api.ap-south-1.amazonaws.com/default/GetStationsFromDB");
-        
+        const response = await axios.get(
+          "https://qgv0fszlng.execute-api.ap-south-1.amazonaws.com/default/GetStationsFromDB"
+        );
+
         if (response.data && Array.isArray(response.data)) {
           const stationList = response.data.map((station, index) => ({
             label: station.name,
-            value: station.name || '',
-            name: station.name || '',
-            line: station.line_name || '',
+            value: station.name || "",
+            name: station.name || "",
+            line: station.line_name || "Unknown Line", // fallback
             key: `station-${index}`,
           }));
-          
           setStations(stationList);
         } else {
           console.error("Invalid response data format:", response.data);
@@ -32,13 +34,46 @@ const MetroStationDropdown = ({ placeholder, onSelect }) => {
         setStations([]);
       }
     };
+
     fetchStations();
   }, []);
 
-  const handleSelect = (value: any) => {
+  const handleSelect = (value: any, line: any) => {
     setSelectedStation(value);
+    setSelectedLine(line);
+
+    // Send directly to parent immediately
     if (onSelect) {
-      onSelect(value);
+      onSelect(value, line);
+    }
+
+    // Log actual values being selected
+    console.log("Selected station:", value);
+    console.log("Selected line:", line);
+  };
+
+  useEffect(() => {
+    if (selectedStation && selectedLine) {
+      console.log("State updated → Station:", selectedStation, "Line:", selectedLine);
+    }
+  }, [selectedStation, selectedLine]);
+
+  const getLineClass = (lineName: any) => {
+    switch ((lineName || "").toLowerCase()) {
+      case "line 1":
+        return "bg-blue-500";
+      case "line 2a":
+        return "bg-yellow-400";
+      case "line 2b":
+        return "bg-orange-400";
+      case "line 7":
+        return "bg-red-500";
+      case "line 6":
+        return "bg-purple-500";
+      case "line 3":
+        return "bg-red-600";
+      default:
+        return "bg-gray-400";
     }
   };
 
@@ -48,26 +83,34 @@ const MetroStationDropdown = ({ placeholder, onSelect }) => {
         open={open}
         value={selectedStation}
         items={stations}
+        searchable={true}
         setOpen={setOpen}
         setValue={setSelectedStation}
         setItems={setStations}
-        onChangeValue={handleSelect}
+        onChangeValue={() => {}} // not used
         placeholder={placeholder || "Select a station"}
         style={styles.dropdownStyle}
         dropDownContainerStyle={styles.dropdownContainerStyle}
         textStyle={styles.textStyle}
         listItemContainerStyle={styles.listItem}
+        searchContainerStyle={styles.searchContainer}
+        searchTextInputStyle={styles.searchInput}
         renderListItem={({ item }) => (
           <TouchableOpacity
             style={styles.itemRow}
             onPress={() => {
-              setSelectedStation(item.value);
-              handleSelect(item.value);
-              setOpen(false); 
+              handleSelect(item.value, item.line);
+              setOpen(false);
             }}
           >
             <Text className="font-poppinsMedium w-40">{item.name}</Text>
-            <Text className="font-poppins bg-blue-200 p-[1] px-1">{item.line}</Text>
+            <Text
+              className={`font-poppins text-white px-1 rounded ${getLineClass(
+                item.line
+              )}`}
+            >
+              {item.line}
+            </Text>
           </TouchableOpacity>
         )}
       />
@@ -108,16 +151,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 8,
   },
-  stationText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1F2937", // dark gray
-    fontFamily: "Poppins-Medium",
+  searchContainer: {
+    borderBottomColor: "#D1D5DB",
+    borderBottomWidth: 1,
   },
-  lineText: {
-    fontSize: 14,
-    color: "#2563EB", // blue-600
-    fontFamily: "Poppins-Regular",
+  searchInput: {
+    fontSize: 16,
+    color: "black",
+    borderColor: "grey",
+    backgroundColor: "#F3F4F6",
   },
 });
 
