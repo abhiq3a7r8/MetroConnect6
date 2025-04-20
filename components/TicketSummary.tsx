@@ -27,6 +27,13 @@ const getLineColor = (line: string) => {
 export function TicketSummary({ startStation, endStation, tripType, numTickets, startLine, endLine }: any) {
     const [ticket, setTicket] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [fareBreakdown, setFareBreakdown] = useState({
+        startLineFare: 0,
+        endLineFare: 0,
+      });
+    const [combinedFare, setCombinedFare] = useState(0);
+    const [fareCalculated, setFareCalculated] = useState(false);
+      
 
     useEffect(() => {
         const fetchTicketDetails = async () => {
@@ -54,35 +61,62 @@ export function TicketSummary({ startStation, endStation, tripType, numTickets, 
         if (!ticket) return;
 
         setLoading(true);
-        const upiUrl = `upi://pay?pa=audire444@oksbi&pn=Name&mc=1234&tid=TxnID&tr=OrderID&tn=Payment&am=${ticket.fare.replace("₹ ", "")}&cu=INR`;
+        
+        // Modified UPI URL format to better support Google Pay
+        // Ensure the amount is properly formatted (no currency symbol, just the number)
+        const fareAmount = typeof ticket.fare === 'string' ? 
+            ticket.fare.replace(/[^0-9.]/g, '') : 
+            ticket.fare.toString();
+            
+        // Using a more generic UPI intent URL that works better with Google Pay
+        const upiUrl = `upi://pay?pa=audire444@oksbi&pn=MetroTicket&mc=4121&tid=${Date.now()}&tr=MetroTicket${Date.now()}&tn=MetroTicket&am=${fareAmount}&cu=INR`;
 
         try {
             const supported = await Linking.canOpenURL(upiUrl);
+            
             if (supported) {
+                // Log the URL for debugging
+                console.log("Opening UPI URL:", upiUrl);
+                
+                // Open the URL to trigger payment app
                 await Linking.openURL(upiUrl);
 
+                // For testing, we'll continue with the process after a delay
                 setTimeout(() => {
                     setTicket((prev: any) => ({ ...prev, paymentStatus: "Paid" }));
                     setLoading(false);
+                    
+                    // Navigation after payment
                     router.push({
                         pathname: "/tickets",
                         params: {
-                            id: ticket.id,
-                            passenger: ticket.passenger,
-                            startStation: ticket.from,
-                            endStation: ticket.to,
-                            numTickets: ticket.passengers,
-                            tripType: ticket.ticketType,
+                            id: ticket.id || "TICKET" + Math.floor(Math.random() * 10000),
+                            passenger: ticket.passenger || "Abhirat",
+                            startStation: ticket.from || startStation,
+                            endStation: ticket.to || endStation,
+                            numTickets: ticket.passengers || numTickets,
+                            tripType: ticket.ticketType || tripType,
                         },
                     });
                 }, 3000);
             } else {
-                Alert.alert("Error", "Could not open UPI app.");
-                setLoading(false);
+                Alert.alert(
+                    "Payment App Not Found", 
+                    "Could not open any UPI payment app. Please make sure you have Google Pay, PhonePe, or another UPI app installed.",
+                    [
+                        { text: "OK", onPress: () => setLoading(false) }
+                    ]
+                );
             }
-        } catch (error) {
-            Alert.alert("Error", "Something went wrong.");
-            setLoading(false);
+        } catch (error: any) {
+            console.error("Payment error:", error);
+            Alert.alert(
+                "Payment Error", 
+                "There was a problem initiating the payment. Please try again.",
+                [
+                    { text: "OK", onPress: () => setLoading(false) }
+                ]
+            );
         }
     };
     
@@ -107,13 +141,12 @@ export function TicketSummary({ startStation, endStation, tripType, numTickets, 
                     fare: data.fare // Example: Update fare with response
                 }));
                 console.log("Fare fetched successfully for same line:", data.fare);
+                setFareCalculated(true);
     
             } catch (error: any) {
                 Alert.alert("Error", error.message || "Failed to fetch fare for the same line.");
             }
         } else {
-            
-            
             try {
                 // First API call from startStation to endStation
                 let endStart = ticket.endStart
@@ -144,12 +177,17 @@ export function TicketSummary({ startStation, endStation, tripType, numTickets, 
                 if (!response2.ok) throw new Error(data2.message || "Failed to fetch fare data for endStation -> startStation");
     
                 // Combine the fare data from both directions
-                const combinedFare = (data1.fare + data2.fare); // Example: Average fare calculation
+                const combinedFare = (data1.fare + data2.fare); 
+                setCombinedFare(combinedFare);
+                const FinalFare = numTickets * combinedFare
+                // Example: Average fare calculation
                 setTicket(prevTicket => ({
                     ...prevTicket,
-                    fare: combinedFare
+                    fare: FinalFare
                 }));
                 
+                setFareBreakdown({ startLineFare: data1.fare , endLineFare: data2.fare });
+                setFareCalculated(true);
                 console.log("Fare fetched successfully for different lines:", combinedFare);
     
             } catch (error: any) {
@@ -158,8 +196,6 @@ export function TicketSummary({ startStation, endStation, tripType, numTickets, 
         }
     };
     
-
-
     if (loading) {
         return (
             <View className="flex-1 justify-center items-center">
@@ -254,11 +290,11 @@ export function TicketSummary({ startStation, endStation, tripType, numTickets, 
                 <View className="bg-zinc-100 rounded-lg p-3 gap-2 mt-2">
                     <View className="flex-row justify-between">
                         <Text className="text-lg font-poppins">Ticket ID:</Text>
-                        <Text className="text-lg font-poppins">{ticket.id}</Text>
+                        <Text className="text-lg font-poppins">{ticket.ticket_id}</Text>
                     </View>
                     <View className="flex-row justify-between">
                         <Text className="text-lg font-poppins">Passenger:</Text>
-                        <Text className="text-lg font-poppins">{ticket.passenger}</Text>
+                        <Text className="text-lg font-poppins">Abhirat</Text>
                     </View>
                     <View className="flex-row justify-between">
                         <Text className="text-lg font-poppins">No. of tickets:</Text>
@@ -272,22 +308,51 @@ export function TicketSummary({ startStation, endStation, tripType, numTickets, 
 
                 {/* Fare Section */}
                 <View>
-                    <TouchableOpacity className="h-12 w-32 self-center bg-blue-200 rounded-md items-center" onPress={fetchFare}>
-                        <Text className="font-poppins">getfare</Text>
-                    </TouchableOpacity>
-                </View>
-                <View className="flex-row justify-between items-center mb-2 mt-2">
-                    <Text className="text-2xl font-poppinsMedium">Total Fare:</Text>
-                    <Text className="text-2xl font-poppinsMedium border p-2 rounded-lg">R{ticket.fare}</Text>
-                </View>
+                    {!fareCalculated && (
+                        <TouchableOpacity 
+                            className="h-12 w-32 self-center bg-blue-200 rounded-md items-center justify-center border border-blue-800 my-4" 
+                            onPress={fetchFare}
+                        >
+                            <Text className="font-poppins">getfare</Text>
+                        </TouchableOpacity>
+                    )}
 
-                <PaymentMode />
+                    {fareCalculated && (
+                        <>
+                            <View className="h-[2] w-full my-2 bg-slate-300"></View>
+                            
+                            {startLine !== endLine && (
+                                <>
+                                    <View className="flex-row justify-between">
+                                        <Text className="font-poppins text-lg">{startLine} Fare: </Text>
+                                        <Text className="font-poppins text-xl">₹ {fareBreakdown.startLineFare}</Text>
+                                    </View>
+                                    <View className="flex-row justify-between">
+                                        <Text className="font-poppins text-lg">{endLine} Fare: </Text>
+                                        <Text className="font-poppins text-xl">₹ {fareBreakdown.endLineFare}</Text>
+                                    </View>
+                                    <View className="flex-row justify-between">
+                                        <Text className="font-poppins text-lg">Fare Per Person: </Text>
+                                        <Text className="font-poppins text-xl">{numTickets} X ₹ {combinedFare}</Text>
+                                    </View>
+                                </>
+                            )}
+                            
+                            <View className="flex-row justify-between items-center mt-2">
+                                <Text className="text-2xl font-poppinsMedium">Total Fare:</Text>
+                                <Text className="text-2xl font-poppinsMedium border p-2 rounded-lg">₹{ticket.fare}</Text>
+                            </View>
+                            <View className="h-[2] w-full my-4 bg-slate-300"></View>
+                            <PaymentMode />
+                        </>
+                    )}
+                </View>
             </View>
 
             {loading ? (
                 <ActivityIndicator size="large" color="#007BFF" className="mt-4" />
             ) : (
-                <Mbutton buttontext="Pay Now" onPress={handlePayNow} disabled={loading} />
+                fareCalculated && <Mbutton buttontext="Pay Now" onPress={handlePayNow} disabled={loading} />
             )}
         </View>
     );

@@ -5,6 +5,8 @@ import { Navbar } from "@/components/Navbar";
 import HomeHeader from "@/components/HomeHeader";
 import { useState } from "react";
 import ShakePopup from "@/components/ShakePopup";
+import Token from "@/components/Token";
+
 
 export default function Dashboard() {
   const [route, setRoute] = useState({ start: "", end: "" , startLine: "", endLine: ""});
@@ -20,6 +22,7 @@ export default function Dashboard() {
         <HomeHeader />
         <HomeWidget onRouteFound={handleRouteFound} />
         {route.start && route.end && <MetroRouteResult startStation={route.start} endStation={route.end} startLine={route.startLine} endLine={route.endLine}/>}
+        {/* <Token /> */}
       </ScrollView>
       {/* <ShakePopup /> */}
       <Navbar />

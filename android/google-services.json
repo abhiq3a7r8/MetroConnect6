@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "819037397777",
+    "project_id": "metroconnect6",
+    "storage_bucket": "metroconnect6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:819037397777:android:da4a83586f6fbded9162b0",
+        "android_client_info": {
+          "package_name": "com.abhi_q3a7r8.MetroConnect5"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDHS21Hp7ROu5eXYztssNv4Dazo2KLNdc8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
