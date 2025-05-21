@@ -4,10 +4,12 @@ import Otpinput from "@/components/Otpinput";
 import { useState } from "react";
 import { router , useLocalSearchParams } from "expo-router";
 
+
+
 export function Enterotp() {
     const [otpValue, setOtpValue] = useState("");
-    const { phone: rawPhone } = useLocalSearchParams();
-    console.log(rawPhone)
+    const { phone , token } = useLocalSearchParams();
+    const rawPhone = Array.isArray(phone) ? phone[0] : phone;    
     const handleVerify = async (otp) => {
         
     
@@ -15,6 +17,7 @@ export function Enterotp() {
             const response = await fetch("https://r80w3crtk8.execute-api.ap-south-1.amazonaws.com/default/sendOtp", {
                 method: "POST",
                 headers: {
+                    
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ action: "verify", phone: rawPhone, code: otp }), 
@@ -24,7 +27,22 @@ export function Enterotp() {
     
             if (response.ok) {
                 console.log("OTP Verified Successfully:", data.message);
+                console.log(" did i stutter ? " + token )
+                
+                
+
+
+
                 router.replace("/dashboard");
+                await fetch("https://xdrkbxo8pe.execute-api.ap-south-1.amazonaws.com/default/PushNotifications", {
+                    method: "POST",
+                    headers: {
+                        // "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ title: "Login Sucessful" , body: "Welcome back to Metro Connect" }), 
+                });
+
             } else {
                 console.log("OTP Verification Failed:", data.error);
             }

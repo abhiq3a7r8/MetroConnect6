@@ -17,28 +17,28 @@ import {
 } from "lucide-react-native";
 import * as Location from "expo-location";
 
-const suburbs = [
-  { name: "Andheri", lat: 19.1197, lng: 72.8468 },
-  { name: "Bandra", lat: 19.0602, lng: 72.836 },
-  { name: "Borivali", lat: 19.229, lng: 72.857 },
-  { name: "Goregaon", lat: 19.155, lng: 72.8494 },
-  { name: "Dadar", lat: 19.018, lng: 72.8436 },
-  { name: "Malad", lat: 19.1852, lng: 72.8424 },
-  { name: "Vile Parle", lat: 19.1006, lng: 72.8485 },
-  { name: "Kurla", lat: 19.0726, lng: 72.8826 },
-  { name: "Powai", lat: 19.1187, lng: 72.9051 },
-  { name: "Colaba", lat: 18.9075, lng: 72.8125 },
-  { name: "Worli", lat: 18.998, lng: 72.8176 },
-  { name: "Chembur", lat: 19.06, lng: 72.8962 },
-  { name: "Ghatkopar", lat: 19.08, lng: 72.9106 },
-  { name: "Mulund", lat: 19.1726, lng: 72.9564 },
-  { name: "Kandivali", lat: 19.2059, lng: 72.8497 },
-  { name: "Santacruz", lat: 19.079, lng: 72.8413 },
-  { name: "Sion", lat: 19.045, lng: 72.8592 },
-  { name: "Jogeshwari", lat: 19.1358, lng: 72.8485 },
-  { name: "Charni Road", lat: 18.9516, lng: 72.8195 },
-  { name: "Marine Lines", lat: 18.9466, lng: 72.8232 },
-];
+// const suburbs = [
+//   { name: "Andheri", lat: 19.1197, lng: 72.8468 },
+//   { name: "Bandra", lat: 19.0602, lng: 72.836 },
+//   { name: "Borivali", lat: 19.229, lng: 72.857 },
+//   { name: "Goregaon", lat: 19.155, lng: 72.8494 },
+//   { name: "Dadar", lat: 19.018, lng: 72.8436 },
+//   { name: "Malad", lat: 19.1852, lng: 72.8424 },
+//   { name: "Vile Parle", lat: 19.1006, lng: 72.8485 },
+//   { name: "Kurla", lat: 19.0726, lng: 72.8826 },
+//   { name: "Powai", lat: 19.1187, lng: 72.9051 },
+//   { name: "Colaba", lat: 18.9075, lng: 72.8125 },
+//   { name: "Worli", lat: 18.998, lng: 72.8176 },
+//   { name: "Chembur", lat: 19.06, lng: 72.8962 },
+//   { name: "Ghatkopar", lat: 19.08, lng: 72.9106 },
+//   { name: "Mulund", lat: 19.1726, lng: 72.9564 },
+//   { name: "Kandivali", lat: 19.2059, lng: 72.8497 },
+//   { name: "Santacruz", lat: 19.079, lng: 72.8413 },
+//   { name: "Sion", lat: 19.045, lng: 72.8592 },
+//   { name: "Jogeshwari", lat: 19.1358, lng: 72.8485 },
+//   { name: "Charni Road", lat: 18.9516, lng: 72.8195 },
+//   { name: "Marine Lines", lat: 18.9466, lng: 72.8232 },
+// ];
 
 export function PlanJourney() {
   const [origin, setOrigin] = useState("");
@@ -76,7 +76,7 @@ export function PlanJourney() {
     }
 
     try {
-      const response = await fetch("http://192.168.133.42:4000/api/route", {
+      const response = await fetch("http://192.168.179.100:4000/api/route", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -110,16 +110,16 @@ export function PlanJourney() {
     }
   };
 
-  const filteredOriginSuggestions = suburbs.filter(
-    (s) =>
-      s.name.toLowerCase().startsWith(origin.toLowerCase()) && origin !== ""
-  );
+  // const filteredOriginSuggestions = suburbs.filter(
+  //   (s) =>
+  //     s.name.toLowerCase().startsWith(origin.toLowerCase()) && origin !== ""
+  // );
 
-  const filteredDestinationSuggestions = suburbs.filter(
-    (s) =>
-      s.name.toLowerCase().startsWith(destination.toLowerCase()) &&
-      destination !== ""
-  );
+  // const filteredDestinationSuggestions = suburbs.filter(
+  //   (s) =>
+  //     s.name.toLowerCase().startsWith(destination.toLowerCase()) &&
+  //     destination !== ""
+  // );
 
   return (
     <View className="bg-white h-auto w-full rounded-[10] justify-start items-center p-4 mb-6 space-y-4">

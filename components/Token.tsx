@@ -1,43 +1,63 @@
+import React, { useEffect } from 'react';
+import { View, Text } from 'react-native';
+import * as Notifications from 'expo-notifications';
 import messaging from '@react-native-firebase/messaging';
-import { useEffect } from 'react';
-import { View, Text, Alert } from 'react-native';
 
-export default function Token() {
+const NotificationComponent = () => {
   useEffect(() => {
-    const setupFCM = async () => {
-      const authStatus = await messaging().requestPermission();
-      const enabled =
-        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+    const setupMessaging = async () => {
+      try {
+        // Request notification permission from the user
+        await messaging().requestPermission();
+        console.warn('✅ Permission granted');
 
-      if (enabled) {
+        // 🔐 Get and log the current FCM token
         const token = await messaging().getToken();
-        console.log('✅ FCM Token:', token);
+        console.warn('📱 Current FCM Token:', token);
 
-        // 👉 Send this token to your backend to register with AWS SNS
-        // await fetch('https://your-backend.com/register', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify({ token }),
-        // });
-      } else {
-        Alert.alert('Permission Denied', 'Notification permissions not granted.');
+        // Foreground message handler
+        messaging().onMessage(async remoteMessage => {
+          console.warn('📩 Foreground message received:', remoteMessage.notification);
+          await displayNotification(remoteMessage.notification);
+        });
+
+        // Background message handler (important)
+        messaging().setBackgroundMessageHandler(async remoteMessage => {
+          console.warn('📥 Background message received:', remoteMessage.notification);
+          await displayNotification(remoteMessage.notification);
+        });
+
+        // App opened from quit state via notification
+        const initial = await messaging().getInitialNotification();
+        if (initial) {
+          console.warn('🚀 Opened from quit:', initial.notification);
+        }
+      } catch (err) {
+        console.warn('❌ Permission error:', err.message);
       }
     };
 
-    setupFCM();
-
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      console.log('📩 Foreground notification:', remoteMessage.notification);
-      Alert.alert(remoteMessage.notification?.title, remoteMessage.notification?.body);
-    });
-
-    return unsubscribe; // clean up
+    setupMessaging();
   }, []);
 
+  // Function to trigger local notification using expo-notifications
+  const displayNotification = async (notification: any) => {
+    const { title, body } = notification;
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: title || 'No Title',
+        body: body || 'No Body',
+      },
+      trigger: null, // trigger immediately
+    });
+  };
+
   return (
-    <View>
-      <Text>🔔 Push Notification Service Initialized</Text>
+    <View style={{ padding: 20 }}>
+      <Text>Notifications will appear here!</Text>
     </View>
   );
-}
+};
+
+export default NotificationComponent;

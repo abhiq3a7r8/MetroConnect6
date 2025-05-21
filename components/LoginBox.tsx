@@ -5,6 +5,7 @@ import CustomText from "./CustomText";
 import { MTextBox } from "./MTextBox";
 import Mbutton from "./MButton";
 
+
 export function LoginBox() {
     const [isSignUp, setIsSignUp] = useState(false);
     const [phone, setPhone] = useState("");
@@ -106,7 +107,9 @@ export function LoginBox() {
 
                 const data = await response.json();
                 console.log("Login Successful:", data);
-                router.replace({ pathname: "/enterotp", params: { phone } });
+                const token = data.tokens.AccessToken
+                console.log("ACESSMANNNN :       " + token )
+                router.replace({ pathname: "/enterotp", params: { phone , token } });
 
                 await fetch("https://r80w3crtk8.execute-api.ap-south-1.amazonaws.com/default/sendOtp", {
                     method: "POST",

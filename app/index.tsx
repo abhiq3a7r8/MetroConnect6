@@ -14,15 +14,21 @@ export default function Index() {
     }
   };
 
+  const bybassLogin = () => {
+    router.replace("/dashboard")
+  }
+
   return (
     <View className="flex-1 items-center justify-evenly bg-gray-100">
       <View className="items-center">
       <TouchableOpacity onPress={handleTap}>
         <Image source={require("@/assets/login.png")} className="mb-4" />
       </TouchableOpacity>
+      <TouchableOpacity onPress={bybassLogin}>
       <Text className="color-black text-4xl font-poppinsMedium">
         Metro Connect 5
       </Text>
+      </TouchableOpacity>
       </View>
       <LoginBox />
     </View>

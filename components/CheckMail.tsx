@@ -34,6 +34,13 @@ export function CheckMail({ phone }: any){
           if (response.ok) {
             Alert.alert('Success', data.message || 'OTP verified successfully!');
             router.replace("/dashboard")
+            await fetch("https://xdrkbxo8pe.execute-api.ap-south-1.amazonaws.com/default/PushNotifications", {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ title: "Registration Sucessful" , body: "Welcome to Metro Connect 6" }), 
+          });
           } else {
             Alert.alert('Error', data.error || 'Invalid OTP. Please try again.');
           }

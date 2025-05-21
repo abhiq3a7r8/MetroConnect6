@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, Dimensions } from "react-native";
+import { View, Text, Dimensions, Touchable, TouchableOpacity } from "react-native";
 import { Accelerometer } from "expo-sensors";
 import * as Location from "expo-location";
 import InMetro from "@/components/InMetro";
@@ -7,6 +7,7 @@ import { Train } from "lucide-react-native";
 import WebView from "react-native-webview";
 import MetroLineHorizontal from "@/components/MetroLineHorizontal";
 import ShakePopup from "@/components/ShakePopup";
+import { router } from "expo-router";
 
 const { width } = Dimensions.get("window");
 const height = 200;
@@ -30,7 +31,7 @@ export default function InsideMetro() {
         const { latitude: lat, longitude: lng } = location.coords;
 
         // Send location to backend (non-blocking)
-        fetch("http://192.168.133.42:4000/api/location", {
+        fetch("http://192.168.179.100:4000/api/location", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -41,6 +42,10 @@ export default function InsideMetro() {
         
     })();
   }, []);
+
+  const takeMap = () => {
+    router.push("/bigmap")
+  }
 
   useEffect(() => {
     const subscription = Accelerometer.addListener(({ x, y, z }) => {
@@ -86,12 +91,14 @@ export default function InsideMetro() {
           </View>
         </View>
 
-        <View className="rounded-lg self-start  flex-row">
-          <MetroLineHorizontal />
-          <View className="w-44 items-center">
-            <Text className="font-poppins text-base"> Next Station: </Text>
-            <Text className="font-poppinsMedium text-2xl">Ghatkopar</Text>
-            <View className="bg-red-50 h-auto py-2 w-[90%] ml-4 mt-32 items-center justify-center">
+        <View className="rounded-lg self-start ">
+          {/* <MetroLineHorizontal /> */}
+          <View className="w-auto items-center flex-row">
+            <View className="items-center ml-3">
+            <Text className="font-poppins text-base "> Next Station: </Text>
+            <Text className="font-poppinsMedium text-2xl">--</Text>
+            </View>
+            <View className="bg-red-50 h-auto py-2 ml-16 mb-4 items-center justify-center">
               <Text className="font-poppinsMedium text-3xl text-zinc-700 ">
                 {speed.toFixed(2)} km/h
               </Text>
@@ -102,7 +109,7 @@ export default function InsideMetro() {
 
         <View style={{ width: width * 0.8, height }}>
           <WebView
-            source={{ uri: "http://192.168.133.42:4000/map" }}
+            source={{ uri: "http://192.168.179.100:4000/map" }}
             style={{ width: "100%", height: "100%", borderRadius: 40 }}
             injectedJavaScript={`
               const meta = document.createElement('meta');
@@ -118,6 +125,9 @@ export default function InsideMetro() {
           <Text className="font-poppinsMedium text-base text-zinc-700 mb-3">
             Speed {speed.toFixed(2)} km/h
           </Text>
+          <TouchableOpacity onPress={takeMap}>
+            <Text className="font-poppins">full screen</Text>
+          </TouchableOpacity>
         </View>
       </View>
       <ShakePopup />

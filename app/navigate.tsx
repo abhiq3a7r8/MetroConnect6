@@ -1,27 +1,34 @@
 import { Navbar } from "@/components/Navbar";
 import PlanJourney from "@/components/PlanJourney";
 import React , { useState }from "react";
-import { Dimensions, View , Text, Pressable } from "react-native";
+import { Dimensions, View , Text, Pressable, TouchableOpacity } from "react-native";
 import { WebView } from "react-native-webview";
 import { ArrowRight } from "lucide-react-native";
 import InMetro from "@/components/InMetro";
 import ShakePopup from "@/components/ShakePopup";
+import { router } from "expo-router";
 
 const { width } = Dimensions.get("window");
 const height = 200;
 
 export default function MapWebView() {
+
+  function openmap() {
+    router.push("/mapscreen")
+  }
   return (
     <View className="flex-1 items-center bg-zinc-200">
     <PlanJourney />
     <View className="self-center w-[90%] justify-center bg-white p-4 rounded-xl">
       <View className="flex-row gap-6">
+      <TouchableOpacity onPress={openmap}>
       <Text className="font-poppinsMedium text-2xl mb-2">Nearby Stations</Text>
+      </TouchableOpacity>
       <ArrowRight color={"black"}/>
       </View>
       <View style={{ width: width * 0.8, height }}>
         <WebView
-          source={{ uri: "http://192.168.133.42:4000" }}
+          source={{ uri: "http://192.168.179.100:4000" }}
           style={{ width: "100%", height: "100%", borderRadius: 40 }}
           injectedJavaScript={`
             const meta = document.createElement('meta');

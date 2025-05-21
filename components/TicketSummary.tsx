@@ -5,23 +5,23 @@ import { ArrowRight, ArrowUpDown, ArrowLeftRight, TowerControl } from "lucide-re
 import Mbutton from "./MButton";
 import PaymentMode from "./PaymentMode";
 
-// Utility: Map line name/number to color
+
 const getLineColor = (line: string) => {
     const lineColors: { [key: string]: string } = {
-        "Line 2A": "#facc15", // Yellow
+        "Line 2A": "#facc15", 
         "2A": "#facc15",
-        "Line 7": "#DC2626", // Red
+        "Line 7": "#DC2626", 
         "7": "#DC2626",
-        "Line 1": "#3b82f6", // Blue
+        "Line 1": "#3b82f6", 
         "1": "#3b82f6",
-        "Line 6": "#8B5CF6", // Violet
+        "Line 6": "#8B5CF6", 
         "6": "#8B5CF6",
-        "Line 4": "#00C853", // Green
+        "Line 4": "#00C853", 
         "4": "#00C853",
-        // Add more as needed
+
     };
 
-    return lineColors[line] || "#999999"; // Default gray
+    return lineColors[line] || "#999999"; 
 };
 
 export function TicketSummary({ startStation, endStation, tripType, numTickets, startLine, endLine }: any) {
@@ -57,18 +57,109 @@ export function TicketSummary({ startStation, endStation, tripType, numTickets, 
         fetchTicketDetails();
     }, []);
 
+    const makeBooking = async () => {
+      if (!ticket || !fareCalculated) {
+          console.log("Cannot make booking: Ticket details or fare not available");
+          return;
+      }
+      
+      try {
+          let bookingResponses = [];
+          
+          if (startLine === endLine) {
+              console.log("bookingla")
+              const response = await fetch("https://cwt0gwou7d.execute-api.ap-south-1.amazonaws.com/default/BookTicket", {
+                  method: "POST",
+                  headers: {
+                      "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                      user_id: "414448", 
+                      ticket_id: ticket.ticket_id,
+                      fare: ticket.fare,
+                      start: startStation,
+                      end: endStation,
+                      line: startLine
+                  }),
+              });
+              
+              const data = await response.json();
+              if (!response.ok) throw new Error(data.message || "Failed to make booking");
+              bookingResponses.push(data);
+              console.log("bookingla2")
+              
+          } else {
+              // First segment: startStation to interchange point (endStart)
+              const response1 = await fetch("https://cwt0gwou7d.execute-api.ap-south-1.amazonaws.com/default/BookTicket", {
+                  method: "POST",
+                  headers: {
+                      "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                      user_id: "414448", // You'll need to provide a user ID
+                      ticket_id: ticket.ticket_id + "-1",
+                      fare: fareBreakdown.startLineFare,
+                      start: startStation,
+                      end: ticket.endStart,
+                      line: startLine
+                  }),
+              });
+              
+              const data1 = await response1.json();
+              if (!response1.ok) throw new Error(data1.message || "Failed to make booking for first segment");
+              bookingResponses.push(data1);
+              
+              // Second segment: interchange point (startEnd) to endStation
+              const response2 = await fetch("https://cwt0gwou7d.execute-api.ap-south-1.amazonaws.com/default/BookTicket", {
+                  method: "POST",
+                  headers: {
+                      "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                      user_id: "414448", // You'll need to provide a user ID
+                      ticket_id: ticket.ticket_id + "-2",
+                      fare: fareBreakdown.endLineFare,
+                      start: ticket.startEnd,
+                      end: endStation,
+                      line: endLine
+                  }),
+              });
+              
+              const data2 = await response2.json();
+              if (!response2.ok) throw new Error(data2.message || "Failed to make booking for second segment");
+              bookingResponses.push(data2);
+          }
+          
+          console.log("Booking successful:", bookingResponses);
+          router.replace("/dashboard")
+          await fetch("https://ieuksxmu00.execute-api.ap-south-1.amazonaws.com/default/PushNotifications", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ title: "Payment Sucessful" , body: "your ticket has been booked" }), 
+        });
+          return bookingResponses;
+          
+      } catch (error) {
+          console.error("Booking error:", error.message);
+          Alert.alert("Booking Error", "Failed to complete your booking. Please try again.");
+          return null;
+      }
+  };
+
     const handlePayNow = async () => {
+        
         if (!ticket) return;
 
         setLoading(true);
         
-        // Modified UPI URL format to better support Google Pay
-        // Ensure the amount is properly formatted (no currency symbol, just the number)
+
         const fareAmount = typeof ticket.fare === 'string' ? 
             ticket.fare.replace(/[^0-9.]/g, '') : 
             ticket.fare.toString();
             
-        // Using a more generic UPI intent URL that works better with Google Pay
+
         const upiUrl = `upi://pay?pa=audire444@oksbi&pn=MetroTicket&mc=4121&tid=${Date.now()}&tr=MetroTicket${Date.now()}&tn=MetroTicket&am=${fareAmount}&cu=INR`;
 
         try {
@@ -78,15 +169,14 @@ export function TicketSummary({ startStation, endStation, tripType, numTickets, 
                 // Log the URL for debugging
                 console.log("Opening UPI URL:", upiUrl);
                 
-                // Open the URL to trigger payment app
                 await Linking.openURL(upiUrl);
 
-                // For testing, we'll continue with the process after a delay
+                await makeBooking();
                 setTimeout(() => {
                     setTicket((prev: any) => ({ ...prev, paymentStatus: "Paid" }));
                     setLoading(false);
                     
-                    // Navigation after payment
+                
                     router.push({
                         pathname: "/tickets",
                         params: {
@@ -129,7 +219,7 @@ export function TicketSummary({ startStation, endStation, tripType, numTickets, 
                 const response = await fetch("https://9acvye9yfj.execute-api.ap-south-1.amazonaws.com/default/getFare", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ startStation }),
+                    body: JSON.stringify({ startStation , endStation }),
                 });
     
                 const data = await response.json();
